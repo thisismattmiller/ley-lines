@@ -1,0 +1,129 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title></title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+  <style>
+    html{
+      height: 100%;
+    }
+    body{
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    #map { height: 100%; width: 100%; }
+
+  </style>
+</head>
+
+<body>
+
+
+   <div id="map"></div>
+
+
+   <script>
+
+
+    let startup ={
+      'manhattan':{
+        initalView: [40.772240101474836,-73.97117390153588],
+        zoom: 12.5,
+        geoJson:'nyclink_Manhattan_final.geojson' 
+      },
+      'brooklyn':{
+        initalView: [40.67682067309866,-73.95611181086501],
+        zoom: 12.5,
+        geoJson:'nyclink_Brooklyn_final.geojson' 
+      },
+      'bronx':{
+        initalView: [40.83609185117767,-73.90779886174165],
+        zoom: 12.5,
+        geoJson:'nyclink_Bronx_final.geojson' 
+      },
+      'queens':{
+        initalView: [40.73172898592556,-73.8790581370091],
+        zoom: 12.5,
+        geoJson:'nyclink_Queens_final.geojson' 
+      },
+      'staten_island':{
+        initalView: [40.58045274510829,-74.10392278718143],
+        zoom: 12.5,
+        geoJson:'nyclink_Staten_Island_final.geojson' 
+      },
+
+
+    }
+
+    let startKey = 'manhattan'
+    if (location.hash){
+      startKey = location.hash.replace('#','').toLowerCase()
+    }
+
+    let useStart = startup[startKey]
+
+
+    var map = L.map('map',{attributionControl: false}).setView(useStart.initalView,useStart.zoom );
+
+    L.tileLayer('https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}@2x.png', {
+        attribution: '',
+        maxZoom: 18,        
+        tileSize: 512,
+        zoomOffset: -1,        
+    }).addTo(map);
+    fetch(useStart.geoJson)
+    .then(function(response) {
+    return response.json();
+    })
+    .then(function(data) {
+
+      let center = data.features.pop()
+      let layer = L.geoJSON(data).addTo(map);
+
+
+      layer.setStyle({fillColor :'#01017a', color:'#01017a'}) 
+    
+      let msg = `<a target="_blank" href="https://maps.google.com/?q=${center.geometry.coordinates[1]},${center.geometry.coordinates[0]}">Center Point</a>`
+
+      var circle = L.circle([center.geometry.coordinates[1], center.geometry.coordinates[0]], {
+        color: '#765d69',
+        fillColor: '#765d69',
+        fillOpacity: 0.5,
+        radius: 100
+      }).addTo(map);
+
+      circle.bindPopup(msg)
+
+      circle = L.circle([center.geometry.coordinates[1], center.geometry.coordinates[0]], {
+        color: '#765d69',
+        fillColor: '#765d69',
+        fillOpacity: 0.5,
+        radius: 5
+      }).addTo(map);
+
+      circle.bindPopup(msg)
+
+    });
+
+
+
+   </script>
+
+
+
+
+</body>
+</html>
